@@ -19,3 +19,7 @@
 
 # Go workspace file
 go.work
+.DS_Store
+app/.DS_Store
+chat/.DS_Store
+/.idea/
