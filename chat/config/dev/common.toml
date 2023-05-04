@@ -1,0 +1,13 @@
+[common-etcd]
+host = "127.0.0.1:12379"
+basePath = "/gochat_srv"
+serverPathLogic = "LogicRpc"
+serverPathConnect = "ConnectRpc"
+userName = ""
+password = ""
+connectionTimeout = 5
+
+[common-redis]
+redisAddress = "127.0.0.1:16379"
+redisPassword = "bdaffa037a6b11d5"
+db = 0
