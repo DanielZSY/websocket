@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"imservice/define"
 
 	"imservice/pkg/etcd"
 	"imservice/pkg/setting"
@@ -50,15 +51,15 @@ func initRPCServer() {
 // ETCD注册发现服务
 func registerServer() {
 	if util.IsCluster() {
-		//注册租约
+		// 注册租约
 		ser, err := etcd.NewServiceReg(setting.EtcdSetting.Endpoints, 5)
 		if err != nil {
 			panic(err)
 		}
 
 		hostPort := net.JoinHostPort(setting.GlobalSetting.LocalHost, setting.CommonSetting.RPCPort)
-		//添加key
-		err = ser.PutService(define.ETCD_SERVER_LIST+hostPort, hostPort)
+		// 添加key
+		err = ser.PutService(define.EtcdServerList+hostPort, hostPort)
 		if err != nil {
 			panic(err)
 		}
@@ -67,7 +68,7 @@ func registerServer() {
 		if err != nil {
 			panic(err)
 		}
-		_, err = cli.GetService(define.ETCD_SERVER_LIST)
+		_, err = cli.GetService(define.EtcdServerList)
 		if err != nil {
 			panic(err)
 		}

@@ -2,6 +2,7 @@ package send2group
 
 import (
 	"encoding/json"
+	"imservice/api"
 
 	"imservice/define/retcode"
 	"imservice/servers"
