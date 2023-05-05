@@ -1,6 +1,4 @@
-FROM golang:1.18
-
-MAINTAINER Lock <lockexit@gmail.com>
+FROM golang:1.19
 
 WORKDIR /go/src/gochat
 

@@ -1,20 +1,25 @@
-all:im_bin ims_bin imr_bin 
+.PHONY: build run clean
 
+# 构建
+build:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o websocket main.go
 
-im_bin:
-	cd im && make
+# 运行
+run:
+	@go run ./
 
-ims_bin:
-	cd ims && make
+# 代码格式化
+format:
+	go fmt ./
 
-imr_bin:
-	cd imr && make
+# 代码检测
+check:
+	go vet ./
 
-
-install:all
-	cp ./im/im ./bin
-	cp ./ims/ims ./bin
-	cp ./imr/imr ./bin
-
+# 清除二进制
 clean:
-	rm -f ./im/im  ./im/benchmark ./im/benchmark_group ./im/benchmark_room ./im/benchmark_connection ./im/benchmark_sender ./im/benchmark_storage ./im/benchmark_route ./ims/main.test ./ims/ims ./imr/imr
+	@if [ -f ${BIN_NAME} ] ; then rm ${BIN_NAME} ; fi
+
+# 构建Docker镜像
+image:
+	docker build -t lab/${BIN_NAME}:latest .
