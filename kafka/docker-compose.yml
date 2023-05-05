@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  zookeeper:
+    image: 'wurstmeister/zookeeper:latest'
+    container_name: zookeeper
+    restart: always
+    privileged: true
+    ports:
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      app:
+        ipv4_address: 172.28.0.91
+
+  kafka:
+    image: 'wurstmeister/kafka:latest'
+    container_name: kafka
+    restart: always
+    privileged: true
+    ports:
+      - '9092:9092'
+      - '9093:9093'
+    environment:
+      KAFKA_BROKER_ID: 0
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://:9092
+      KAFKA_LISTENERS: PLAINTEXT://:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "go-chat-message:2:0"   # kafka启动后初始化一个有2个partition(分区)0个副本名叫go-chat-message的topic
+    depends_on:
+      - zookeeper
+    networks:
+      app:
+        ipv4_address: 172.28.0.92
+
+networks:
+  app:
+    external: true

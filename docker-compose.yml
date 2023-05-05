@@ -1,0 +1,17 @@
+version: '3'
+ 
+services:
+    chatroom:
+        image: lab/chatroom:latest
+        container_name: chatroom
+        restart: always
+        privileged: true
+        ports:
+            - 9788:9788
+        networks:
+            app:
+                ipv4_address: 172.28.0.93
+
+networks:
+    app:
+        external: true
