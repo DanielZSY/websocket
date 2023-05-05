@@ -1,0 +1,100 @@
+package logic
+
+import (
+	"context"
+	"github.com/zeromicro/go-zero/core/mr"
+	"imservice/app/im/immodel"
+	"imservice/app/im/internal/svc"
+	"imservice/common/pb"
+	"imservice/common/utils"
+	"imservice/common/utils/ip2region"
+	"imservice/common/xorm"
+	"imservice/common/xredis/rediskey"
+	"imservice/common/xtrace"
+
+	"github.com/zeromicro/go-zero/core/logx"
+)
+
+type AfterConnectLogic struct {
+	ctx    context.Context
+	svcCtx *svc.ServiceContext
+	logx.Logger
+}
+
+func NewAfterConnectLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AfterConnectLogic {
+	return &AfterConnectLogic{
+		ctx:    ctx,
+		svcCtx: svcCtx,
+		Logger: logx.WithContext(ctx),
+	}
+}
+
+func (l *AfterConnectLogic) afterConnect(in *pb.AfterConnectReq) (*pb.CommonResp, error) {
+	var headers = xorm.M{}
+	for k, v := range in.ConnParam.Headers {
+		headers[k] = v
+	}
+	connectRecord := &immodel.UserConnectRecord{
+		UserId:         in.ConnParam.UserId,
+		DeviceId:       in.ConnParam.DeviceId,
+		Platform:       in.ConnParam.Platform,
+		Ips:            in.ConnParam.Ips,
+		IpRegion:       ip2region.Ip2Region(in.ConnParam.Ips),
+		NetworkUsed:    in.ConnParam.NetworkUsed,
+		Headers:        headers,
+		PodIp:          in.ConnParam.PodIp,
+		ConnectTime:    utils.AnyToInt64(in.ConnectedAt),
+		DisconnectTime: 0,
+	}
+	// 判断是否存在 通过 ConnectTime
+	err := l.svcCtx.Mysql().Model(&immodel.UserConnectRecord{}).Where("userId = ? and deviceId = ? and connectTime = ?", in.ConnParam.UserId, in.ConnParam.DeviceId, utils.AnyToInt64(in.ConnectedAt)).First(connectRecord).Error
+	if xorm.RecordNotFound(err) {
+		err := xorm.InsertOne(l.svcCtx.Mysql(), connectRecord)
+		if err != nil {
+			l.Errorf("insert connect record failed, err: %v", err)
+			return pb.NewRetryErrorResp(), err
+		}
+	} else if err != nil {
+		l.Errorf("connect record already exists, err: %v", err)
+		return pb.NewRetryErrorResp(), err
+	}
+	// 写入redis latest connect record
+	go xtrace.RunWithTrace(xtrace.TraceIdFromContext(l.ctx), "imServer/AfterConnect/SaveLatestConnectRecord", func(ctx context.Context) {
+		err = l.svcCtx.Redis().SetexCtx(ctx, rediskey.LatestConnectRecord(in.ConnParam.UserId), utils.AnyToString(connectRecord), rediskey.LatestConnectRecordExpire())
+		if err != nil {
+			l.Errorf("set latest connect record failed, err: %v", err)
+		}
+	}, nil)
+	return &pb.CommonResp{}, nil
+}
+
+func (l *AfterConnectLogic) AfterConnect(in *pb.AfterConnectReq) (*pb.CommonResp, error) {
+	var fs []func() error
+	fs = append(fs, func() error {
+		var err error
+		xtrace.StartFuncSpan(l.ctx, "im.afterConnect", func(ctx context.Context) {
+			_, err = l.afterConnect(in)
+		})
+		return err
+	})
+	fs = append(fs, func() error {
+		var err error
+		_, err = l.svcCtx.MsgService().AfterConnect(l.ctx, in)
+		return err
+	})
+	fs = append(fs, func() error {
+		var err error
+		_, err = l.svcCtx.NoticeService().AfterConnect(l.ctx, in)
+		return err
+	})
+	fs = append(fs, func() error {
+		var err error
+		_, err = l.svcCtx.UserService().AfterConnect(l.ctx, in)
+		return err
+	})
+	err := mr.Finish(fs...)
+	if err != nil {
+		return pb.NewRetryErrorResp(), err
+	}
+	return &pb.CommonResp{}, nil
+}

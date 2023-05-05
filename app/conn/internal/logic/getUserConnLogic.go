@@ -1,0 +1,43 @@
+package logic
+
+import (
+	"context"
+	"github.com/zeromicro/go-zero/core/logx"
+	"imservice/app/conn/internal/svc"
+	"imservice/common/pb"
+)
+
+type GetUserConnLogic struct {
+	ctx    context.Context
+	svcCtx *svc.ServiceContext
+	logx.Logger
+}
+
+func NewGetUserConnLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserConnLogic {
+	return &GetUserConnLogic{
+		ctx:    ctx,
+		svcCtx: svcCtx,
+		Logger: logx.WithContext(ctx),
+	}
+}
+
+func (l *GetUserConnLogic) GetUserConn(in *pb.GetUserConnReq) (*pb.GetUserConnResp, error) {
+	conns := GetConnLogic().GetConnsByFilter(GetConnLogic().BuildSearchUserConnFilter(in))
+	var resp []*pb.ConnParam
+	for _, conn := range conns {
+		resp = append(resp, &pb.ConnParam{
+			UserId:      conn.ConnParam.UserId,
+			Token:       conn.ConnParam.Token,
+			DeviceId:    conn.ConnParam.DeviceId,
+			Platform:    conn.ConnParam.Platform,
+			Ips:         conn.ConnParam.Ips,
+			NetworkUsed: conn.ConnParam.NetworkUsed,
+			Headers:     conn.ConnParam.Headers,
+			PodIp:       l.svcCtx.PodIp,
+			Timestamp:   conn.ConnParam.Timestamp,
+			AesKey:      conn.ConnParam.AesKey,
+			AesIv:       conn.ConnParam.AesIv,
+		})
+	}
+	return &pb.GetUserConnResp{ConnParams: resp}, nil
+}
