@@ -1,12 +1,11 @@
 package config
 
 import (
-	"fmt"
-
-	"github.com/spf13/viper"
+	"flag"
+	"github.com/zeromicro/go-zero/core/conf"
 )
 
-type TomlConfig struct {
+type IMConfig struct {
 	AppName string
 	AppMode string
 	AppHost string
@@ -16,6 +15,11 @@ type TomlConfig struct {
 	Log            LogConfig
 	StaticPath     PathConfig
 	MsgChannelType MsgChannelType
+
+	Kafka struct {
+		Hosts string
+		Topic string
+	}
 }
 
 // MySQL相关配置
@@ -44,27 +48,31 @@ type PathConfig struct {
 // kafka是使用kafka作为消息队列，可以分布式扩展消息聊天程序
 type MsgChannelType struct {
 	ChannelType string
-	KafkaHosts  string
-	KafkaTopic  string
 }
 
-var c TomlConfig
+var c IMConfig
+
+var configFile = flag.String("f", "config/config.yaml", "the config.go file")
 
 func init() {
-	// 设置文件名
-	viper.SetConfigName("config")
-	// 设置文件类型
-	viper.SetConfigType("toml")
-	// 设置文件路径，可以多个viper会根据设置顺序依次查找
-	viper.AddConfigPath("config")
-	viper.AutomaticEnv()
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(fmt.Errorf("fatal error config file: %s", err))
-	}
+	//// 设置文件名
+	//viper.SetConfigName("config")
+	//// 设置文件类型
+	//viper.SetConfigType("toml")
+	//// 设置文件路径，可以多个viper会根据设置顺序依次查找
+	//viper.AddConfigPath("config")
+	//viper.AutomaticEnv()
+	//err := viper.ReadInConfig()
+	//if err != nil {
+	//	panic(fmt.Errorf("fatal error config file: %s", err))
+	//}
+	//
+	//viper.Unmarshal(&c)
 
-	viper.Unmarshal(&c)
+	flag.Parse()
+
+	conf.MustLoad(*configFile, &c)
 }
-func GetConfig() TomlConfig {
+func GetConfig() IMConfig {
 	return c
 }

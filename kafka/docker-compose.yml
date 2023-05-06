@@ -24,7 +24,7 @@ services:
       - '9093:9093'
     environment:
       KAFKA_BROKER_ID: 0
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://172.28.0.92:9092
       KAFKA_LISTENERS: PLAINTEXT://:9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_CREATE_TOPICS: "go-chat-message:2:0"   # kafka启动后初始化一个有2个partition(分区)0个副本名叫go-chat-message的topic

@@ -18,6 +18,6 @@ const (
 	VIDEO_ONLINE = 7
 
 	// 消息队列类型
-	GO_CHANNEL = "gochannel"
-	KAFKA      = "kafka"
+	CHANNEL = "channel"
+	KAFKA   = "kafka"
 )

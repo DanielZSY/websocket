@@ -1,0 +1,26 @@
+AppName: "chat_room"
+AppMode: "dev"
+AppHost: ""
+AppPort: 9788
+
+MySQL:
+  Host: "172.28.0.5"
+  Port: 3306
+  Name: "app_chat"
+  User: "root"
+  Password: "bdaffa037a6b11d5"
+  TablePrefix: "im_"
+
+Log:
+  Level: "debug"
+  Path: "./logs/chat.log"
+
+StaticPath:
+  FilePath: "./static/file/"
+
+MsgChannelType:
+  ChannelType: "kafka" # kafka or channel
+
+Kafka:
+  Hosts: "172.28.0.92:9092"
+  Topic: "go-chat-message"

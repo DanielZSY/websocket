@@ -11,8 +11,8 @@ CREATE DATABASE IF NOT EXISTS app_chat DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_g
 use app_chat;
 
 
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE IF NOT EXISTS `users` (
+DROP TABLE IF EXISTS `im_users`;
+CREATE TABLE IF NOT EXISTS `im_users` (
     `id` int NOT NULL AUTO_INCREMENT COMMENT 'id',
     `uuid` varchar(150) NOT NULL COMMENT 'uuid',
     `username` varchar(191) NOT NULL COMMENT '用户名',
@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT '用户表';
 
 
-DROP TABLE IF EXISTS `user_friends`;
-CREATE TABLE IF NOT EXISTS `user_friends` (
+DROP TABLE IF EXISTS `im_user_friends`;
+CREATE TABLE IF NOT EXISTS `im_user_friends` (
     `id` int NOT NULL AUTO_INCREMENT COMMENT 'id',
     `created_at` datetime(3) DEFAULT NULL COMMENT '创建时间',
     `updated_at` datetime(3) DEFAULT NULL COMMENT '更新时间',
@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS `user_friends` (
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT '好友信息表';
 
 
-DROP TABLE IF EXISTS `messages`;
-CREATE TABLE IF NOT EXISTS `messages` (
+DROP TABLE IF EXISTS `im_messages`;
+CREATE TABLE IF NOT EXISTS `im_messages` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `created_at` datetime(3) DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime(3) DEFAULT NULL COMMENT '更新时间',
@@ -63,8 +63,8 @@ CREATE TABLE IF NOT EXISTS `messages` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT '消息表';
 
 
-DROP TABLE IF EXISTS `groups`;
-CREATE TABLE IF NOT EXISTS  `groups` (
+DROP TABLE IF EXISTS `im_groups`;
+CREATE TABLE IF NOT EXISTS  `im_groups` (
   `id` int NOT NULL AUTO_INCREMENT,
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
@@ -78,8 +78,8 @@ CREATE TABLE IF NOT EXISTS  `groups` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT '群组表';
 
 
-DROP TABLE IF EXISTS `group_members`;
-CREATE TABLE  IF NOT EXISTS `group_members` (
+DROP TABLE IF EXISTS `im_group_members`;
+CREATE TABLE  IF NOT EXISTS `im_group_members` (
   `id` int NOT NULL AUTO_INCREMENT,
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,

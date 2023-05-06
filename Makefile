@@ -23,8 +23,8 @@ fmt:
 build-darwin: fmt
 	@echo "$(CGREEN)Building for darwin ...$(CEND)"
 	@mkdir -p bin
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o deploy/${BINARY} cmd/main.go
-	cp config/config_dev.toml deploy/config/config.toml
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o deploy/${BINARY} main.go
+	cp config/config_dev.yaml deploy/config/config.yaml
 	@echo "$(CGREEN)Build Success!$(CEND)"
 
 # build
@@ -32,17 +32,17 @@ build-darwin: fmt
 build: fmt
 	@echo "$(CGREEN)Building for linux ...$(CEND)"
 	@mkdir -p bin
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o deploy/${BINARY} cmd/main.go
-	cp config/config.toml deploy/config/config.toml
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o deploy/${BINARY} main.go
+	cp config/config.yaml deploy/config/config.yaml
 	@echo "$(CGREEN)Build Success!$(CEND)"
 
 # build
 .PHONY: build-dev
-build: fmt
+build-dev: fmt
 	@echo "$(CGREEN)Building dev for linux ...$(CEND)"
 	@mkdir -p bin
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o deploy/${BINARY} cmd/main.go
-	cp config/config_dev.toml deploy/config/config.toml
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o deploy/${BINARY} main.go
+	cp config/config_dev.yaml deploy/config/config.yaml
 	@echo "$(CGREEN)Build Success!$(CEND)"
 
 # install

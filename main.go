@@ -17,8 +17,8 @@ func main() {
 	log.Logger.Info("config", log.Any("config", config.GetConfig()))
 
 	if config.GetConfig().MsgChannelType.ChannelType == constant.KAFKA {
-		kafka.InitProducer(config.GetConfig().MsgChannelType.KafkaTopic, config.GetConfig().MsgChannelType.KafkaHosts)
-		kafka.InitConsumer(config.GetConfig().MsgChannelType.KafkaHosts)
+		kafka.InitProducer(config.GetConfig().Kafka.Topic, config.GetConfig().Kafka.Hosts)
+		kafka.InitConsumer(config.GetConfig().Kafka.Hosts)
 		go kafka.ConsumerMsg(server.ConsumerKafkaMsg)
 	}
 
