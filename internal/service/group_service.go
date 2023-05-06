@@ -32,7 +32,7 @@ func (g *groupService) GetGroups(uuid string) ([]response.GroupResponse, error) 
 
 	var groups []response.GroupResponse
 
-	db.Raw("SELECT g.id AS group_id, g.uuid, g.created_at, g.name, g.notice FROM group_members AS gm LEFT JOIN `groups` AS g ON gm.group_id = g.id WHERE gm.user_id = ?",
+	db.Raw("SELECT g.id AS group_id, g.uuid, g.created_at, g.name, g.notice FROM `im_group_members` AS gm LEFT JOIN `im_groups` AS g ON gm.group_id = g.id WHERE gm.user_id = ?",
 		queryUser.Id).Scan(&groups)
 
 	return groups, nil
@@ -68,7 +68,7 @@ func (g *groupService) GetUserIdByGroupUuid(groupUuid string) []model.User {
 	}
 
 	var users []model.User
-	db.Raw("SELECT u.uuid, u.avatar, u.username FROM `groups` AS g JOIN group_members AS gm ON gm.group_id = g.id JOIN users AS u ON u.id = gm.user_id WHERE g.id = ?",
+	db.Raw("SELECT u.uuid, u.avatar, u.username FROM `im_groups` AS g JOIN `im_group_members` AS gm ON gm.group_id = g.id JOIN `im_users` AS u ON u.id = gm.user_id WHERE g.id = ?",
 		group.ID).Scan(&users)
 	return users
 }

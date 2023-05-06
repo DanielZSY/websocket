@@ -11,15 +11,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 获取消息列表
+// GetMessage 获取消息列表
 func GetMessage(c *gin.Context) {
 	log.Logger.Info(c.Query("uuid"))
 	var messageRequest request.MessageRequest
 	err := c.BindQuery(&messageRequest)
-	if nil != err {
-		log.Logger.Error("bindQueryError", log.Any("bindQueryError", err))
+	if err != nil {
+		c.JSON(http.StatusOK, response.FailMsg(err.Error()))
+		return
 	}
-	log.Logger.Info("messageRequest params: ", log.Any("messageRequest", messageRequest))
 
 	messages, err := service.MessageService.GetMessages(messageRequest)
 	if err != nil {

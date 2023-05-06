@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	"chat-room/config"
@@ -18,7 +18,7 @@ import (
 func GetFile(c *gin.Context) {
 	fileName := c.Param("fileName")
 	log.Logger.Info(fileName)
-	data, _ := ioutil.ReadFile(config.GetConfig().StaticPath.FilePath + fileName)
+	data, _ := os.ReadFile(config.GetConfig().StaticPath.FilePath + fileName)
 	c.Writer.Write(data)
 }
 

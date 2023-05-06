@@ -1,0 +1,93 @@
+version: '3'
+
+services:
+  mysql:
+    image: arm64v8/mysql:8.0.32
+    container_name: mysql
+    privileged: true
+    restart: always
+    environment:
+      # root 密码
+      MYSQL_ROOT_PASSWORD: bdaffa037a6b11d5
+      # 初始化数据库(后续的初始化sql会在这个库执行)
+      MYSQL_DATABASE: app_chat
+      # 初始化用户(不能是root 会报错, 后续需要给新用户赋予权限)
+      MYSQL_USER: chat_room
+      # 用户密码
+      MYSQL_PASSWORD: bdaffa037a6b11d5
+    ports:
+      - "3306:3306"
+    volumes:
+      # 数据挂载
+      - ./data/mysql/data/:/var/lib/mysql
+      - ./data/mysql/log/:/var/log
+    command:
+      # 将mysql8.0默认密码策略 修改为 原先 策略 (mysql8.0对其默认策略做了更改 会导致密码无法匹配)
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+    networks:
+      app:
+        ipv4_address: 172.28.0.5
+
+  redis:
+    image: redis:7.0.8
+    container_name: redis
+    privileged: true
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis/data:/data
+      - ./data/redis/conf.d:/etc/redis/redis.conf.d
+      - ./data/redis/logs:/logs
+    command: "redis-server --requirepass bdaffa037a6b11d5  --appendonly yes"
+    networks:
+      app:
+        ipv4_address: 172.28.0.6
+
+  mongodb:
+    image: mongo:4.4.18
+    container_name: mongo
+    privileged: true
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongodb/data/db:/data/db
+      - ./data/mongodb/data/logs:/data/logs
+      - ./data/mongodb/data/conf:/etc/mongo
+      - ./data/mongodb/script/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
+    environment:
+      - wiredTigerCacheSizeGB=1
+      - MONGO_INITDB_ROOT_USERNAME=app_lab_root
+      - MONGO_INITDB_ROOT_PASSWORD=bdaffa037a6b11d5
+      - MONGO_INITDB_DATABASE=app_lab
+      - MONGO_USERNAME=app_lab
+      - MONGO_PASSWORD=bdaffa037a6b11d5
+    command: --wiredTigerCacheSizeGB 1 --auth
+    networks:
+      app:
+        ipv4_address: 172.28.0.7
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.1
+    container_name: etcd
+    privileged: true
+    restart: always
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    volumes:
+      # 挂载外部的目录
+      - ./data/etcd/data:/etcd-data
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+    networks:
+      app:
+        ipv4_address: 172.28.0.8
+
+networks:
+  app:
+    external: true
